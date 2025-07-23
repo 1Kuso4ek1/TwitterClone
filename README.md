@@ -74,7 +74,7 @@ Before you begin, ensure you have the following installed:
    - In the `sql` folder you can find `create_tables.sql` file, which contains all the necessary queries.
    - Connect to your database using `psql` or pgAdmin:
        ```bash
-       psql -U your_db_user -d pbin
+       psql -U your_db_user -d whoitter
        ```
    - Run the `create_tables.sql` file:
        ```sql
