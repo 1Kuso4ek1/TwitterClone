@@ -7,7 +7,7 @@ namespace Models = drogon_model::whoitter;
 namespace Controllers
 {
 
-void UsersController::getUserById(const HttpRequestPtr& req, Callback&& callback, const int64_t id)
+void UsersController::getUserById(const HttpRequestPtr& req, Callback&& callback, const int id)
 {
     static auto mapper = orm::Mapper<Models::Users>(app().getDbClient());
 
@@ -29,7 +29,7 @@ void UsersController::getMe(const HttpRequestPtr& req, Callback&& callback)
 {
     static auto mapper = orm::Mapper<Models::Users>(app().getDbClient());
 
-    const auto selfId = std::stoll(req->getParameter("user_id"));
+    const auto selfId = std::stoi(req->getParameter("user_id"));
 
     try
     {

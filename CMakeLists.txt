@@ -13,7 +13,10 @@ set(OUTPUT_DIR ${CMAKE_BINARY_DIR})
 set(
     BACKEND_HEADERS
 
+    include/Controllers/FollowsController.hpp
+    include/Controllers/LikesController.hpp
     include/Controllers/LoginController.hpp
+    include/Controllers/PostsController.hpp
     include/Controllers/StaticController.hpp
     include/Controllers/UsersController.hpp
 
@@ -31,7 +34,10 @@ set(
 set(
     BACKEND_SOURCES
 
+    src/Controllers/FollowsController.cpp
+    src/Controllers/LikesController.cpp
     src/Controllers/LoginController.cpp
+    src/Controllers/PostsController.cpp
     src/Controllers/StaticController.cpp
     src/Controllers/UsersController.cpp
 

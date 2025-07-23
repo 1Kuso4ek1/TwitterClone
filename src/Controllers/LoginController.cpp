@@ -16,8 +16,16 @@ namespace Controllers
 
 void LoginController::login(const HttpRequestPtr& req, Callback&& callback)
 {
+    if(req->getSession()->find("jwtAccess"))
+    {
+        LOG_INFO << "User already logged in, redirecting to /";
+
+        callback(HttpResponse::newRedirectionResponse("/"));
+        return;
+    }
+
     const auto& config = app().getCustomConfig();
-    const auto state = utils::secureRandomString(12);
+    const auto state = utils::base64Encode(utils::secureRandomString(12));
     const auto link = std::format(
         oauth2Template,
         config["oauth2"]["client_id"].asString(),
@@ -103,7 +111,7 @@ void LoginController::requestUser(const HttpRequestPtr& req, const std::string& 
         {
             if(const auto json = resp->getJsonObject(); json)
             {
-                const auto response = HttpResponse::newRedirectionResponse("/api/users/me");
+                const auto response = HttpResponse::newRedirectionResponse("/");
                 processUser(req, response, *json);
 
                 callback(response);
@@ -125,7 +133,7 @@ void LoginController::processUser(const HttpRequestPtr& req, const HttpResponseP
 
     try // Try to find the user by OAuth ID
     {
-        // Throws if not fount
+        // Throws if not found
         userModel = mapper.findOne({ "oauth_id", user["id"].asString() });
     }
     catch(...) // The user is probably not in the database

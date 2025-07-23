@@ -13,20 +13,22 @@ void StaticController::swaggerFile(const HttpRequestPtr& req, Callback&& callbac
     callback(HttpResponse::newFileResponse("../static/swagger.json"));
 }
 
-void StaticController::success(const HttpRequestPtr& req, Callback&& callback, const std::string& msg)
+void StaticController::index(const HttpRequestPtr& req, Callback&& callback)
 {
-    const auto resp = HttpResponse::newHttpResponse();
-    resp->setBody(std::format("<html><head></head><body>Success:</br>{}</body></html>", msg));
-
-    callback(resp);
+    callback(HttpResponse::newFileResponse("../static/html/index.html"));
 }
 
-void StaticController::protectedPage(const HttpRequestPtr& req, Callback&& callback)
+void StaticController::login(const HttpRequestPtr& req, Callback&& callback)
 {
-    const auto resp = HttpResponse::newHttpResponse();
-    resp->setBody("<html><head></head><body>Protected page</body></html>");
+    if(req->getSession()->find("jwtAccess"))
+    {
+        LOG_INFO << "User already logged in, redirecting to /";
 
-    callback(resp);
+        callback(HttpResponse::newRedirectionResponse("/"));
+        return;
+    }
+
+    callback(HttpResponse::newFileResponse("../static/html/login.html"));
 }
 
 }

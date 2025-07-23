@@ -11,7 +11,7 @@ namespace Controllers
 class UsersController final : public HttpController<UsersController>
 {
 public:
-    static void getUserById(const HttpRequestPtr& req, Callback&& callback, int64_t id);
+    static void getUserById(const HttpRequestPtr& req, Callback&& callback, int id);
     static void getMe(const HttpRequestPtr& req, Callback&& callback);
 
 public:

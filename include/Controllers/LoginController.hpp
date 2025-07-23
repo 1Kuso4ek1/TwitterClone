@@ -22,7 +22,7 @@ public:
 public:
     METHOD_LIST_BEGIN
 
-        ADD_METHOD_TO(login, "/login", Get);
+        ADD_METHOD_TO(login, "/auth/google", Get);
         ADD_METHOD_TO(logout, "/logout", Post);
 
         ADD_METHOD_TO(oauth, "/oauth?code={code}&state={state}", Get);
