@@ -15,9 +15,16 @@ set(
 
     include/Controllers/LoginController.hpp
     include/Controllers/StaticController.hpp
+    include/Controllers/UsersController.hpp
 
     include/Filters/JwtFilter.hpp
 
+    include/Models/Follows.hpp
+    include/Models/Likes.hpp
+    include/Models/Posts.hpp
+    include/Models/Users.hpp
+
+    include/Utils/JwtUtils.hpp
     include/Utils/Singleton.hpp
 )
 
@@ -26,11 +33,16 @@ set(
 
     src/Controllers/LoginController.cpp
     src/Controllers/StaticController.cpp
+    src/Controllers/UsersController.cpp
 
     src/Filters/JwtFilter.cpp
 
+    src/Models/Follows.cpp
+    src/Models/Likes.cpp
+    src/Models/Posts.cpp
+    src/Models/Users.cpp
+
     src/main.cpp
-    include/Utils/JwtUtils.hpp
 )
 
 set(CMAKE_CXX_STANDARD 20)

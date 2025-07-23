@@ -2,10 +2,14 @@
 
 #include "Utils/JwtUtils.hpp"
 
+#include "Models/Users.hpp"
+
 #include <drogon/HttpClient.h>
 #include <drogon/orm/Mapper.h>
 
 using namespace std::chrono_literals;
+
+namespace Models = drogon_model::whoitter;
 
 namespace Controllers
 {
@@ -47,13 +51,13 @@ void LoginController::oauth(
     if(const auto sessionState = req->getSession()->get<std::string>("oauth2_state");
         state != sessionState || sessionState.empty())
     {
+        LOG_ERROR << "Invalid OAuth2 state: " << state << ", expected: " << sessionState;
+
         callback(HttpResponse::newHttpResponse(k400BadRequest, CT_NONE));
         return;
     }
 
     req->getSession()->erase("oauth2_state");
-
-    LOG_INFO << "OAuth2 code: " << code;
 
     const auto& config = app().getCustomConfig();
 
@@ -74,8 +78,6 @@ void LoginController::oauth(
             {
                 const auto& json = *resp->getJsonObject();
                 const auto access = json["access_token"].asString();
-
-                LOG_INFO << "Access token: " << access;
 
                 requestUser(req, access, static_cast<Callback>(callback));
             }
@@ -101,27 +103,47 @@ void LoginController::requestUser(const HttpRequestPtr& req, const std::string& 
         {
             if(const auto json = resp->getJsonObject(); json)
             {
-                const auto [access, refresh] = processUser(*json);
+                const auto response = HttpResponse::newRedirectionResponse("/api/users/me");
+                processUser(req, response, *json);
 
-                req->getSession()->insert("jwtAccess", access);
-
-                Utils::saveRefreshToCookie(refresh, resp);
-
-                callback(HttpResponse::newRedirectionResponse("/protected"));
+                callback(response);
             }
             else
+            {
                 LOG_ERROR << "Failed to get user info";
+
+                callback(HttpResponse::newHttpResponse(k400BadRequest, CT_NONE));
+            }
         });
 }
 
-std::pair<std::string, std::string> LoginController::processUser(const Json::Value& user)
+void LoginController::processUser(const HttpRequestPtr& req, const HttpResponsePtr& resp, const Json::Value& user)
 {
-    LOG_INFO << "User info: " << user.toStyledString();
+    static auto mapper = orm::Mapper<Models::Users>(app().getDbClient());
 
-    const auto access = Utils::makeAccessToken(1, user["name"].asString());
-    const auto refresh = Utils::makeRefreshToken(1, user["name"].asString());
+    Models::Users userModel;
 
-    return { access, refresh };
+    try // Try to find the user by OAuth ID
+    {
+        // Throws if not fount
+        userModel = mapper.findOne({ "oauth_id", user["id"].asString() });
+    }
+    catch(...) // The user is probably not in the database
+    {
+        userModel.setOauthId(user["id"].asString());
+        userModel.setUsername(std::format("user_{}", utils::secureRandomString(8)));
+        userModel.setDisplayName(user["name"].asString());
+        userModel.setAvatarUrl(user["picture"].asString());
+
+        mapper.insert(userModel);
+    }
+
+    const auto access = Utils::makeAccessToken(*userModel.getId(), *userModel.getUsername());
+    const auto refresh = Utils::makeRefreshToken(*userModel.getId(), *userModel.getUsername());
+
+    req->getSession()->insert("jwtAccess", access);
+
+    Utils::saveRefreshToCookie(refresh, resp);
 }
 
 }

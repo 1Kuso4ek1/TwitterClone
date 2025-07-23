@@ -10,13 +10,11 @@ using namespace std::chrono_literals;
 namespace Utils
 {
 
-inline void saveRefreshToCookie(const std::string& token, const HttpResponsePtr& resp, int maxAge = 604800) // 7 days
+inline void saveRefreshToCookie(const std::string& token, const HttpResponsePtr& resp, const int maxAge = 604800) // 7 days
 {
     Cookie cookie("refreshToken", token);
     cookie.setHttpOnly(true);
-    cookie.setSecure(true);
     cookie.setSameSite(Cookie::SameSite::kStrict);
-    cookie.setPath("/refresh");
     cookie.setMaxAge(maxAge);
 
     resp->addCookie(cookie);
