@@ -36,7 +36,7 @@ using DbClientPtr = std::shared_ptr<DbClient>;
 }
 namespace drogon_model
 {
-namespace whoitter
+namespace TwitterClone
 {
 class Follows;
 class Likes;
@@ -293,5 +293,5 @@ class Users
         return sql;
     }
 };
-} // namespace whoitter
+} // namespace TwitterClone
 } // namespace drogon_model

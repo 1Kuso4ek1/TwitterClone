@@ -1,4 +1,4 @@
-const api = new WhoItterAPI();
+const api = new TwitterCloneAPI();
 
 async function init() {
     try {

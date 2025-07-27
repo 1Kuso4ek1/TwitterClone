@@ -12,7 +12,7 @@
 
 using namespace drogon;
 using namespace drogon::orm;
-using namespace drogon_model::whoitter;
+using namespace drogon_model::TwitterClone;
 
 const std::string Follows::Cols::_follower_id = "\"follower_id\"";
 const std::string Follows::Cols::_followee_id = "\"followee_id\"";

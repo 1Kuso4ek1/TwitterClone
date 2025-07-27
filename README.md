@@ -1,4 +1,4 @@
-# WhoItter
+# TwitterClone
 
 This is a C++ web application that serves as a backend for a social media platform similar to Twitter, built using a Drogon framework.
 
@@ -29,8 +29,8 @@ Before you begin, ensure you have the following installed:
 2. Run the following command:
 
     ```bash
-    git clone --recursive --depth=1 --shallow-submodules https://github.com/1Kuso4ek1/WhoItter.git
-    cd WhoItter
+    git clone --recursive --depth=1 --shallow-submodules https://github.com/1Kuso4ek1/TwitterClone.git
+    cd TwitterClone
     ```
 
     **Note:** The `--depth=1 --shallow-submodules` flags are used for faster cloning. If you need to work with the Drogon submodule directly (e.g., switch branches), you might need to clone without these flags.
@@ -64,17 +64,17 @@ Before you begin, ensure you have the following installed:
    - For example:
        ```sql
        CREATE USER your_db_user WITH PASSWORD 'your_db_password';
-       CREATE DATABASE whoitter WITH OWNER your_db_user;
-       GRANT ALL PRIVILEGES ON DATABASE whoitter TO your_db_user;
+       CREATE DATABASE twitter WITH OWNER your_db_user;
+       GRANT ALL PRIVILEGES ON DATABASE twitter TO your_db_user;
        ```
-      - Replace `your_db_user`, `your_db_password`, and `whoitter` with your desired username, password, and database name.
+      - Replace `your_db_user`, `your_db_password`, and `twitter` with your desired username, password, and database name.
 
 2. **Create tables:**
    - You need to create tables in a database.
    - In the `sql` folder you can find `create_tables.sql` file, which contains all the necessary queries.
    - Connect to your database using `psql` or pgAdmin:
        ```bash
-       psql -U your_db_user -d whoitter
+       psql -U your_db_user -d twitter
        ```
    - Run the `create_tables.sql` file:
        ```sql

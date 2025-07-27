@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "WhoItter API",
+    "title": "TwitterClone API",
     "description": "Twitter-like social media API",
     "version": "1.0.0"
   },

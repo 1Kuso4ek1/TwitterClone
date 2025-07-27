@@ -13,7 +13,7 @@
 
 using namespace drogon;
 using namespace drogon::orm;
-using namespace drogon_model::whoitter;
+using namespace drogon_model::TwitterClone;
 
 const std::string Posts::Cols::_id = "\"id\"";
 const std::string Posts::Cols::_user_id = "\"user_id\"";

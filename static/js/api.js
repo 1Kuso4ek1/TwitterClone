@@ -1,4 +1,4 @@
-class WhoItterAPI {
+class TwitterCloneAPI {
     constructor() {
         this.baseURL = '/api';
     }

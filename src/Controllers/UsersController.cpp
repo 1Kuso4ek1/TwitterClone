@@ -2,7 +2,7 @@
 
 #include "Models/Users.hpp"
 
-namespace Models = drogon_model::whoitter;
+namespace Models = drogon_model::TwitterClone;
 
 namespace Controllers
 {

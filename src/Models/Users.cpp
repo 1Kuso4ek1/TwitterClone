@@ -14,7 +14,7 @@
 
 using namespace drogon;
 using namespace drogon::orm;
-using namespace drogon_model::whoitter;
+using namespace drogon_model::TwitterClone;
 
 const std::string Users::Cols::_id = "\"id\"";
 const std::string Users::Cols::_username = "\"username\"";

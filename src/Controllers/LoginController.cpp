@@ -9,7 +9,7 @@
 
 using namespace std::chrono_literals;
 
-namespace Models = drogon_model::whoitter;
+namespace Models = drogon_model::TwitterClone;
 
 namespace Controllers
 {
