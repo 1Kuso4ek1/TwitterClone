@@ -16,8 +16,10 @@ void JwtFilter::doFilter(
     const auto authHeader = req->getHeader("Authorization");
     const auto sessionJwt = req->getSession()->get<std::string>("jwtAccess");
 
-    auto token = authHeader.empty() ? sessionJwt : authHeader.substr(7);
-    
+    auto token =
+        authHeader.empty() || authHeader.size() < 7
+        ? sessionJwt : authHeader.substr(7);
+
     if(authHeader.empty() && sessionJwt.empty())
     {
         if(tryRefresh(req))
@@ -31,24 +33,16 @@ void JwtFilter::doFilter(
 
     try
     {
-        const auto decoded = jwt::decode(token);
-        const auto verifier = jwt::verify()
-            .allow_algorithm(jwt::algorithm::hs256(accessSecret))
-            .with_issuer("auth0");
+        const auto [userId, username] = Utils::verify(token, accessSecret);
 
-        verifier.verify(decoded);
-
-        req->setParameter("user_id", decoded.get_payload_claim("user_id").as_string());
-        req->setParameter("username", decoded.get_payload_claim("username").as_string());
+        req->setParameter("user_id", userId);
+        req->setParameter("username", username);
 
         fccb();
     }
     catch(...)
     {
-        const auto response = HttpResponse::newHttpResponse();
-        response->setStatusCode(k401Unauthorized);
-        
-        fcb(response);
+        fcb(HttpResponse::newHttpResponse(k401Unauthorized, CT_NONE));
     }
 }
 
@@ -63,15 +57,7 @@ bool JwtFilter::tryRefresh(const HttpRequestPtr& req)
 
     try
     {
-        const auto decoded = jwt::decode(refreshToken);
-        const auto verifier = jwt::verify()
-                .allow_algorithm(jwt::algorithm::hs256(refreshSecret))
-                .with_issuer("auth0");
-
-        verifier.verify(decoded);
-
-        const auto userId = decoded.get_payload_claim("user_id").as_string();
-        const auto username = decoded.get_payload_claim("username").as_string();
+        const auto [userId, username] = Utils::verify(refreshToken, refreshSecret);
 
         req->getSession()->insert(
             "jwtAccess",

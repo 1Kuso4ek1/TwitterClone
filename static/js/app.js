@@ -1,8 +1,10 @@
 const api = new TwitterCloneAPI();
+let currentUser;
 
 async function init() {
     try {
         const user = await api.getCurrentUser();
+        currentUser = user;
         renderUserInfo(user);
         renderPostForm();
         loadFeed();
@@ -40,6 +42,16 @@ async function createPost() {
     }
 }
 
+async function deletePost(postId) {
+    await api.deletePost(postId);
+    loadFeed();
+}
+
+async function followUser(userId) {
+    await api.followUser(userId);
+    loadFeed();
+}
+
 async function loadFeed() {
     const posts = await api.getFeed();
     const feed = document.getElementById('feed');
@@ -50,6 +62,11 @@ async function loadFeed() {
                 <div>${new Date(post.created_at).toLocaleString()}</div>
             </div>
             <div class="post-content">${post.content}</div>
+            <div class="post-actions">
+                ${post.user.id === currentUser.id ? `<button onclick="deletePost(${post.id})">Delete</button>` : `<button onclick="followUser(${post.user.id})">Follow</button>`}
+                <button onclick="api.likePost(${post.id})">Like</button>
+                <button onclick="api.unlikePost(${post.id})">Unlike</button>
+            </div>
         </div>
     `).join('');
 }

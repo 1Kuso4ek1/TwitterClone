@@ -7,6 +7,8 @@
 #include <drogon/HttpClient.h>
 #include <drogon/orm/Mapper.h>
 
+#include <ranges>
+
 using namespace std::chrono_literals;
 
 namespace Models = drogon_model::TwitterClone;
@@ -74,9 +76,19 @@ void LoginController::oauth(
     const auto request = HttpRequest::newHttpFormPostRequest();
     request->setPath("/token");
     request->setParameter("code", code);
-    request->setParameter("client_id", config["oauth2"]["client_id"].asString());
-    request->setParameter("client_secret", config["oauth2"]["client_secret"].asString());
-    request->setParameter("redirect_uri", config["oauth2"]["redirect_uri"].asString());
+    if(req->getParameter("fromApp") == "true")
+    {
+        request->setParameter("client_id", req->getParameter("client_id"));
+        request->setParameter("client_secret", config["oauth2"]["app_client_secret"].asString());
+        request->setParameter("redirect_uri", req->getParameter("redirect_uri"));
+        request->setParameter("code_verifier", req->getParameter("code_verifier"));
+    }
+    else
+    {
+        request->setParameter("client_id", config["oauth2"]["client_id"].asString());
+        request->setParameter("client_secret", config["oauth2"]["client_secret"].asString());
+        request->setParameter("redirect_uri", config["oauth2"]["redirect_uri"].asString());
+    }
     request->setParameter("grant_type", "authorization_code");
 
     client->sendRequest(request,
@@ -98,6 +110,40 @@ void LoginController::oauth(
         });
 }
 
+void LoginController::appOauth(const HttpRequestPtr& req, Callback&& callback, const std::string& code)
+{
+    // State is verified locally in the app
+    req->getSession()->insert("oauth2_state", std::string("app_oauth_state"));
+    req->setParameter("fromApp", "true");
+
+    oauth(req, std::move(callback), code, "app_oauth_state");
+}
+
+void LoginController::appRefresh(const HttpRequestPtr& req, Callback&& callback, const std::string& refreshToken)
+{
+    static auto refreshSecret = app().getCustomConfig()["jwt"]["refresh_secret"].asString();
+
+    try
+    {
+        const auto [userId, username] = Utils::verify(refreshToken, refreshSecret);
+        const auto accessToken = Utils::makeAccessToken(std::stoi(userId), username);
+
+        req->getSession()->insert("jwtAccess", accessToken);
+
+        Json::Value json;
+        json["access_token"] = accessToken;
+        json["refresh_token"] = refreshToken;
+        json["token_type"] = "Bearer";
+        json["expires_in"] = 3600;
+
+        callback(HttpResponse::newHttpJsonResponse(json));
+    }
+    catch(...)
+    {
+        callback(HttpResponse::newHttpResponse(k401Unauthorized, CT_NONE));
+    }
+}
+
 void LoginController::requestUser(const HttpRequestPtr& req, const std::string& accessToken, Callback&& callback)
 {
     static const auto client = HttpClient::newHttpClient("https://www.googleapis.com/");
@@ -111,7 +157,13 @@ void LoginController::requestUser(const HttpRequestPtr& req, const std::string& 
         {
             if(const auto json = resp->getJsonObject(); json)
             {
-                const auto response = HttpResponse::newRedirectionResponse("/");
+                HttpResponsePtr response;
+
+                if(req->getParameter("fromApp") == "true")
+                    response = HttpResponse::newHttpResponse();
+                else
+                    response = HttpResponse::newRedirectionResponse("/");
+
                 processUser(req, response, *json);
 
                 callback(response);
@@ -152,6 +204,18 @@ void LoginController::processUser(const HttpRequestPtr& req, const HttpResponseP
     req->getSession()->insert("jwtAccess", access);
 
     Utils::saveRefreshToCookie(refresh, resp);
+
+    if(req->getParameter("fromApp") == "true")
+    {
+        Json::Value json;
+        json["access_token"] = access;
+        json["refresh_token"] = refresh;
+        json["token_type"] = "Bearer";
+        json["expires_in"] = 3600;
+
+        resp->setBody(json.toStyledString());
+        resp->setContentTypeCode(CT_APPLICATION_JSON);
+    }
 }
 
 }

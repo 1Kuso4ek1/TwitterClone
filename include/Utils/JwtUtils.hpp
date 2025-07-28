@@ -10,6 +10,21 @@ using namespace std::chrono_literals;
 namespace Utils
 {
 
+inline std::pair<std::string, std::string> verify(const std::string& token, const std::string& secret)
+{
+    const auto decoded = jwt::decode(token);
+    const auto verifier = jwt::verify()
+            .allow_algorithm(jwt::algorithm::hs256(secret))
+            .with_issuer("auth0");
+
+    verifier.verify(decoded);
+
+    return {
+        decoded.get_payload_claim("user_id").as_string(),
+        decoded.get_payload_claim("username").as_string()
+    };
+}
+
 inline void saveRefreshToCookie(const std::string& token, const HttpResponsePtr& resp, const int maxAge = 604800) // 7 days
 {
     Cookie cookie("refreshToken", token);

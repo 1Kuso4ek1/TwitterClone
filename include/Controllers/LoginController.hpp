@@ -18,6 +18,8 @@ public:
         const HttpRequestPtr& req, Callback&& callback,
         const std::string& code, const std::string& state
     );
+    static void appOauth(const HttpRequestPtr& req, Callback&& callback, const std::string& code);
+    static void appRefresh(const HttpRequestPtr& req, Callback&& callback, const std::string& refreshToken);
 
 public:
     METHOD_LIST_BEGIN
@@ -26,6 +28,8 @@ public:
         ADD_METHOD_TO(logout, "/logout", Post);
 
         ADD_METHOD_TO(oauth, "/oauth?code={code}&state={state}", Get);
+        ADD_METHOD_TO(appOauth, "/app/oauth?code={code}", Post);
+        ADD_METHOD_TO(appRefresh, "/app/refresh?refresh_token={refresh_token}", Post);
 
     METHOD_LIST_END
 

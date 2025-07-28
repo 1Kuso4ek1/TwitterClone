@@ -40,7 +40,10 @@ void PostsController::createPost(const HttpRequestPtr& req, Callback&& callback)
         return;
     }
 
-    callback(HttpResponse::newHttpJsonResponse(post.toJson()));
+    Json::Value json = post.toJson();
+    json["user"] = post.getUser(app().getDbClient()).toJson();
+
+    callback(HttpResponse::newHttpJsonResponse(json));
 }
 
 void PostsController::deletePost(const HttpRequestPtr& req, Callback&& callback, const int postId)
