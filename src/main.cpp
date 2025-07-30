@@ -11,9 +11,13 @@ int main(const int argc, char* argv[])
 
     app()
         .loadConfigFile(configPath)
-        .registerPostHandlingAdvice( // Needed only for swagger, remove it in production
+        .registerPostHandlingAdvice(
             [](const HttpRequestPtr& req, const HttpResponsePtr& resp) {
+                // Needed only for swagger, remove or change it to something safer in production
                 resp->addHeader("Access-Control-Allow-Origin", "*");
+                // Needed for WASM application to load properly
+                resp->addHeader("Cross-Origin-Opener-Policy", "same-origin");
+                resp->addHeader("Cross-Origin-Embedder-Policy", "require-corp");
             }
         )
         .run();
