@@ -38,7 +38,19 @@ void StaticController::wasmApp(const HttpRequestPtr& req, Callback&& callback)
 
 void StaticController::wasmFile(const HttpRequestPtr& req, Callback&& callback)
 {
-    callback(HttpResponse::newFileResponse("../static/wasm/TwitterClone.wasm", "", CT_APPLICATION_WASM));
+    static constexpr auto compressedFilename = "../static/wasm/TwitterClone.wasm.br";
+    static constexpr auto decompressedFilename = "../static/wasm/TwitterClone.wasm";
+
+    HttpResponsePtr response;
+    if(std::filesystem::exists(compressedFilename))
+    {
+        response = HttpResponse::newFileResponse(compressedFilename, "", CT_APPLICATION_WASM);
+        response->addHeader("Content-Encoding", "br");
+    }
+    else
+        response = HttpResponse::newFileResponse(decompressedFilename, "", CT_APPLICATION_WASM);
+
+    callback(response);
 }
 
 void StaticController::wasmAppJs(const HttpRequestPtr& req, Callback&& callback)

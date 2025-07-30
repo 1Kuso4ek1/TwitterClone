@@ -42,10 +42,11 @@
         "relaunch_on_error": false,
         "use_sendfile": true,
         "use_gzip": true,
-        "use_brotli": false,
-        "static_files_cache_time": 5,
+        "use_brotli": true,
+        "static_files_cache_time": 120,
         "idle_connection_timeout": 60,
-        "gzip_static": true
+        "gzip_static": true,
+        "brotli_static": true
     },
     "custom_config": {
         "jwt": {
