@@ -76,10 +76,15 @@ void LoginController::oauth(
     const auto request = HttpRequest::newHttpFormPostRequest();
     request->setPath("/token");
     request->setParameter("code", code);
-    if(req->getParameter("fromApp") == "true")
+    if(req->getParameter("from_app") == "true")
     {
         request->setParameter("client_id", req->getParameter("client_id"));
-        request->setParameter("client_secret", config["oauth2"]["app_client_secret"].asString());
+
+        if(req->getParameter("app_type") == "wasm") // Requires the 'Web Application' client
+            request->setParameter("client_secret", config["oauth2"]["client_secret"].asString());
+        else
+            request->setParameter("client_secret", config["oauth2"]["app_client_secret"].asString());
+
         request->setParameter("redirect_uri", req->getParameter("redirect_uri"));
         request->setParameter("code_verifier", req->getParameter("code_verifier"));
     }
@@ -114,7 +119,7 @@ void LoginController::appOauth(const HttpRequestPtr& req, Callback&& callback, c
 {
     // State is verified locally in the app
     req->getSession()->insert("oauth2_state", std::string("app_oauth_state"));
-    req->setParameter("fromApp", "true");
+    req->setParameter("from_app", "true");
 
     oauth(req, std::move(callback), code, "app_oauth_state");
 }
@@ -159,7 +164,7 @@ void LoginController::requestUser(const HttpRequestPtr& req, const std::string& 
             {
                 HttpResponsePtr response;
 
-                if(req->getParameter("fromApp") == "true")
+                if(req->getParameter("from_app") == "true")
                     response = HttpResponse::newHttpResponse();
                 else
                     response = HttpResponse::newRedirectionResponse("/");
@@ -205,7 +210,7 @@ void LoginController::processUser(const HttpRequestPtr& req, const HttpResponseP
 
     Utils::saveRefreshToCookie(refresh, resp);
 
-    if(req->getParameter("fromApp") == "true")
+    if(req->getParameter("from_app") == "true")
     {
         Json::Value json;
         json["access_token"] = access;
