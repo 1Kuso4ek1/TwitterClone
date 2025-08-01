@@ -482,6 +482,14 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "likes_count": {
+            "type": "integer",
+            "description": "The number of likes"
+          },
+          "liked": {
+            "type": "boolean",
+            "description": "This post is liked by the current user"
           }
         }
       },
@@ -503,6 +511,14 @@
           },
           "user": {
             "$ref": "#/components/schemas/User"
+          },
+          "likes_count": {
+            "type": "integer",
+            "description": "The number of likes"
+          },
+          "liked": {
+            "type": "boolean",
+            "description": "This post is liked by the current user"
           }
         }
       }

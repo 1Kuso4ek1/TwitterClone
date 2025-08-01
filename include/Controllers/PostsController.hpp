@@ -24,7 +24,7 @@ public:
         ADD_METHOD_TO(deletePost, "/api/posts/{post_id}", Delete, "Filters::JwtFilter");
 
         ADD_METHOD_TO(getFeed, "/api/posts?limit={limit}&offset={offset}", Get, "Filters::JwtFilter");
-        ADD_METHOD_TO(getUserPosts, "/api/posts/user/{user_id}?limit={limit}&offset={offset}", Get);
+        ADD_METHOD_TO(getUserPosts, "/api/posts/user/{user_id}?limit={limit}&offset={offset}", Get, "Filters::JwtFilter");
 
     METHOD_LIST_END
 };

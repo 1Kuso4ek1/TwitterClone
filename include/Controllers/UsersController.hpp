@@ -17,7 +17,7 @@ public:
 public:
     METHOD_LIST_BEGIN
 
-        ADD_METHOD_TO(getUserById, "/api/users/{id}", Get);
+        ADD_METHOD_TO(getUserById, "/api/users/{id}", Get, "Filters::JwtFilter");
         ADD_METHOD_TO(getMe, "/api/users/me", Get, "Filters::JwtFilter");
 
     METHOD_LIST_END

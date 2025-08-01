@@ -1,7 +1,10 @@
 #include "Controllers/PostsController.hpp"
 
+#include "Models/Likes.hpp"
 #include "Models/Posts.hpp"
 #include "Models/Users.hpp"
+
+#include <ranges>
 
 namespace Models = drogon_model::TwitterClone;
 
@@ -91,6 +94,13 @@ void PostsController::getFeed(
         {
             json.append(i.toJson());
             json.back()["user"] = i.getUser(dbClient).toJson();
+
+            // Probably can be optimized
+            const auto likes = i.getLike(dbClient);
+            json.back()["likes_count"] = likes.size();
+            json.back()["liked"] = std::ranges::any_of(
+                likes, [selfId](const auto& like) { return *like.getUserId() == selfId; }
+            );
         }
 
         callback(HttpResponse::newHttpJsonResponse(json));
@@ -108,7 +118,10 @@ void PostsController::getUserPosts(
     const int userId, const int limit, const int offset
 )
 {
+    static const auto& dbClient = app().getDbClient();
     static auto mapper = orm::Mapper<Models::Posts>(app().getDbClient());
+
+    const auto selfId = std::stoi(req->getParameter("user_id"));
 
     try
     {
@@ -120,7 +133,15 @@ void PostsController::getUserPosts(
 
         Json::Value json;
         for(const auto& i : posts)
+        {
             json.append(i.toJson());
+            // Probably can be optimized
+            const auto likes = i.getLike(dbClient);
+            json.back()["likes_count"] = likes.size();
+            json.back()["liked"] = std::ranges::any_of(
+                likes, [selfId](const auto& like) { return *like.getUserId() == selfId; }
+            );
+        }
 
         callback(HttpResponse::newHttpJsonResponse(json));
     }
