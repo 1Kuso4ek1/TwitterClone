@@ -45,6 +45,8 @@ void PostsController::createPost(const HttpRequestPtr& req, Callback&& callback)
 
     Json::Value json = post.toJson();
     json["user"] = post.getUser(app().getDbClient()).toJson();
+    json["likes_count"] = 0;
+    json["liked"] = false;
 
     callback(HttpResponse::newHttpJsonResponse(json));
 }
