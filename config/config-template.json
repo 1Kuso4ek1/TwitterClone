@@ -37,6 +37,7 @@
         "session_timeout": 3600,
         "session_max_age": 604800,
         "document_root": "../static/",
+        "client_max_body_size": "10M",
         "run_as_daemon": false,
         "handle_sig_term": true,
         "relaunch_on_error": false,
